@@ -25,6 +25,7 @@ program
       });
 
       console.log(chalk.green(`\n✅ Agents: ${results.agents.installed} installed, ${results.agents.skipped} skipped`));
+      console.log(chalk.green(`✅ Skills: ${results.skills.installed} installed, ${results.skills.skipped} skipped`));
       console.log(chalk.green(`✅ Templates: ${results.templates.installed} installed, ${results.templates.skipped} skipped`));
 
       if (!options.dryRun) {

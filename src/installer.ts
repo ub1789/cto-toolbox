@@ -20,6 +20,7 @@ export async function installAssets(options: InstallOptions = {}) {
 
   const results = {
     agents: { installed: 0, updated: 0, skipped: 0 },
+    skills: { installed: 0, updated: 0, skipped: 0 },
     templates: { installed: 0, updated: 0, skipped: 0 },
   };
 
@@ -45,6 +46,21 @@ export async function installAssets(options: InstallOptions = {}) {
       results.agents.installed++;
     } else {
       results.agents.skipped++;
+    }
+  }
+
+  // Install Skills
+  const packageSkillsDir = path.join(packageAssetsDir, 'skills');
+  const skills = await fs.readdir(packageSkillsDir);
+  for (const skill of skills) {
+    const src = path.join(packageSkillsDir, skill);
+    const dest = path.join(skillsDir, skill);
+
+    if (await shouldUpdate(src, dest)) {
+      if (!options.dryRun) await fs.copy(src, dest);
+      results.skills.installed++;
+    } else {
+      results.skills.skipped++;
     }
   }
 
