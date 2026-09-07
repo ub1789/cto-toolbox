@@ -12,94 +12,76 @@ export async function installAssets(options: InstallOptions = {}) {
   const home = os.homedir();
   const agentsDir = path.join(home, '.claude', 'agents');
   const skillsDir = path.join(home, '.claude', 'skills');
+  const commandsDir = path.join(home, '.claude', 'commands');
   const templatesDir = options.templatesDir || path.join(home, 'cto-toolbox', 'templates');
 
   const packageAssetsDir = path.join(process.cwd(), 'assets');
-  const packageAgentsDir = path.join(packageAssetsDir, 'agents');
-  const packageTemplatesDir = path.join(packageAssetsDir, 'templates');
 
-  const results = {
-    agents: { installed: 0, updated: 0, skipped: 0 },
-    skills: { installed: 0, updated: 0, skipped: 0 },
-    templates: { installed: 0, updated: 0, skipped: 0 },
-  };
+  const targets = [
+    { key: 'agents', srcDir: path.join(packageAssetsDir, 'agents'), destDir: agentsDir },
+    { key: 'skills', srcDir: path.join(packageAssetsDir, 'skills'), destDir: skillsDir },
+    { key: 'commands', srcDir: path.join(packageAssetsDir, 'commands'), destDir: commandsDir },
+    { key: 'templates', srcDir: path.join(packageAssetsDir, 'templates'), destDir: templatesDir },
+  ] as const;
+
+  const results: Record<string, { installed: number; skipped: number }> = {};
 
   if (options.dryRun) {
     console.log('--- Dry Run: No files will be modified ---');
   }
 
-  // Ensure directories exist
-  if (!options.dryRun) {
-    await fs.ensureDir(agentsDir);
-    await fs.ensureDir(skillsDir);
-    await fs.ensureDir(templatesDir);
-  }
+  for (const { key, srcDir, destDir } of targets) {
+    results[key] = { installed: 0, skipped: 0 };
+    if (!options.dryRun) await fs.ensureDir(destDir);
 
-  // Install Agents
-  const agents = await fs.readdir(packageAgentsDir);
-  for (const agent of agents) {
-    const src = path.join(packageAgentsDir, agent);
-    const dest = path.join(agentsDir, agent);
+    const entries = await fs.readdir(srcDir);
+    for (const entry of entries) {
+      const src = path.join(srcDir, entry);
+      const dest = path.join(destDir, entry);
 
-    if (await shouldUpdate(src, dest)) {
-      if (!options.dryRun) await fs.copy(src, dest);
-      results.agents.installed++;
-    } else {
-      results.agents.skipped++;
+      if (await shouldUpdate(src, dest)) {
+        if (!options.dryRun) await fs.copy(src, dest);
+        results[key].installed++;
+      } else {
+        results[key].skipped++;
+      }
     }
   }
 
-  // Install Skills
-  const packageSkillsDir = path.join(packageAssetsDir, 'skills');
-  const skills = await fs.readdir(packageSkillsDir);
-  for (const skill of skills) {
-    const src = path.join(packageSkillsDir, skill);
-    const dest = path.join(skillsDir, skill);
-
-    if (await shouldUpdate(src, dest)) {
-      if (!options.dryRun) await fs.copy(src, dest);
-      results.skills.installed++;
-    } else {
-      results.skills.skipped++;
-    }
-  }
-
-  // Install Templates
-  const templates = await fs.readdir(packageTemplatesDir);
-  for (const template of templates) {
-    const src = path.join(packageTemplatesDir, template);
-    const dest = path.join(templatesDir, template);
-
-    if (await shouldUpdate(src, dest)) {
-      if (!options.dryRun) await fs.copy(src, dest);
-      results.templates.installed++;
-    } else {
-      results.templates.skipped++;
-    }
-  }
-
-  return { results, paths: { agentsDir, templatesDir } };
+  return { results, paths: { agentsDir, skillsDir, commandsDir, templatesDir } };
 }
 
 async function shouldUpdate(src: string, dest: string): Promise<boolean> {
   if (!(await fs.pathExists(dest))) return true;
+  return (await hashPath(src)) !== (await hashPath(dest));
+}
 
-  const srcBuf = await fs.readFile(src);
-  const destBuf = await fs.readFile(dest);
+async function hashPath(target: string): Promise<string> {
+  const stat = await fs.stat(target);
+  const hash = crypto.createHash('sha256');
 
-  const srcHash = crypto.createHash('sha256').update(srcBuf).digest('hex');
-  const destHash = crypto.createHash('sha256').update(destBuf).digest('hex');
+  if (stat.isFile()) {
+    hash.update(await fs.readFile(target));
+    return hash.digest('hex');
+  }
 
-  return srcHash !== destHash;
+  const entries = (await fs.readdir(target)).sort();
+  for (const entry of entries) {
+    hash.update(entry);
+    hash.update(await hashPath(path.join(target, entry)));
+  }
+  return hash.digest('hex');
 }
 
 export async function listAssets() {
   const home = os.homedir();
   const agentsDir = path.join(home, '.claude', 'agents');
+  const commandsDir = path.join(home, '.claude', 'commands');
   const templatesDir = path.join(home, 'cto-toolbox', 'templates');
 
   const installedAgents = await fs.pathExists(agentsDir) ? await fs.readdir(agentsDir) : [];
+  const installedCommands = await fs.pathExists(commandsDir) ? await fs.readdir(commandsDir) : [];
   const installedTemplates = await fs.pathExists(templatesDir) ? await fs.readdir(templatesDir) : [];
 
-  return { installedAgents, installedTemplates };
+  return { installedAgents, installedCommands, installedTemplates };
 }

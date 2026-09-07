@@ -26,6 +26,7 @@ program
 
       console.log(chalk.green(`\n✅ Agents: ${results.agents.installed} installed, ${results.agents.skipped} skipped`));
       console.log(chalk.green(`✅ Skills: ${results.skills.installed} installed, ${results.skills.skipped} skipped`));
+      console.log(chalk.green(`✅ Commands: ${results.commands.installed} installed, ${results.commands.skipped} skipped`));
       console.log(chalk.green(`✅ Templates: ${results.templates.installed} installed, ${results.templates.skipped} skipped`));
 
       if (!options.dryRun) {
@@ -39,6 +40,8 @@ program
 
       console.log(`\n${chalk.bold('Quick Start:')}`);
       console.log(`- Agents deployed to: ${chalk.cyan(paths.agentsDir)}`);
+      console.log(`- Skills deployed to: ${chalk.cyan(paths.skillsDir)}`);
+      console.log(`- Commands deployed to: ${chalk.cyan(paths.commandsDir)}`);
       console.log(`- Templates deployed to: ${chalk.cyan(paths.templatesDir)}`);
       console.log(`\n${chalk.green('Done! Restart your Claude Code session to use the new agents.')}`);
     } catch (error) {
@@ -51,9 +54,11 @@ program
   .command('list')
   .description('List installed CTO Toolbox assets')
   .action(async () => {
-    const { installedAgents, installedTemplates } = await listAssets();
+    const { installedAgents, installedCommands, installedTemplates } = await listAssets();
     console.log(chalk.blue('\nInstalled Agents:'));
     installedAgents.filter((a: string) => a.startsWith('p0-') || a.startsWith('repolens-')).forEach((a: string) => console.log(` - ${a}`));
+    console.log(chalk.blue('\nInstalled Commands:'));
+    installedCommands.filter((c: string) => c.startsWith('repolens-')).forEach((c: string) => console.log(` - ${c}`));
     console.log(chalk.blue('\nInstalled Templates:'));
     installedTemplates.forEach((t: string) => console.log(` - ${t}`));
   });
