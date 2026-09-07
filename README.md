@@ -4,7 +4,15 @@ The **CTO Toolbox** is a professional distribution system for the UB Labs agent 
 
 ## 🚀 Quick Start
 
-The fastest way to install is via `npx`:
+Install with a single command (requires `git`, `node` 18+, `npm`):
+
+```bash
+curl -fsSL https://raw.githubusercontent.com/ub1789/cto-toolbox/main/install.sh | bash
+```
+
+This clones the repo, builds it, and runs the installer for you. Pass installer flags after the pipe, e.g. `... | bash -s -- --dry-run`.
+
+Once published to npm, the same install will be available via:
 
 ```bash
 npx @ublabs/cto-toolbox install
