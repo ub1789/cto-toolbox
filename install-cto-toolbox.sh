@@ -1,11 +1,11 @@
 #!/usr/bin/env bash
-# CTO Toolbox — standalone installer (generated, do not edit by hand).
+# CTO Toolbox installer (generated, do not edit by hand).
 # Regenerate with: node scripts/generate-standalone.mjs
 #
 # Fully self-contained: every asset is embedded below. Needs only bash.
 #
 # Usage:
-#   curl -fsSL https://raw.githubusercontent.com/ub1789/cto-toolbox/main/install-standalone.sh | bash
+#   curl -fsSL https://raw.githubusercontent.com/ub1789/cto-toolbox/main/install-cto-toolbox.sh | bash
 
 set -euo pipefail
 

@@ -1,5 +1,5 @@
 #!/usr/bin/env node
-// Generates install-standalone.sh: a single, dependency-free bash script
+// Generates install-cto-toolbox.sh: a single, dependency-free bash script
 // that embeds every asset file via heredocs. Run after any change under
 // assets/ to keep the generated script in sync:
 //   node scripts/generate-standalone.mjs
@@ -11,7 +11,7 @@ import { fileURLToPath } from 'node:url';
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const ROOT = path.join(__dirname, '..');
 const ASSETS = path.join(ROOT, 'assets');
-const OUT_FILE = path.join(ROOT, 'install-standalone.sh');
+const OUT_FILE = path.join(ROOT, 'install-cto-toolbox.sh');
 
 const TARGETS = [
   { src: path.join(ASSETS, 'agents'), destVar: 'AGENTS_DIR', label: 'agents' },
@@ -57,13 +57,13 @@ for (const { src, destVar, label } of TARGETS) {
 }
 
 const header = `#!/usr/bin/env bash
-# CTO Toolbox — standalone installer (generated, do not edit by hand).
+# CTO Toolbox installer (generated, do not edit by hand).
 # Regenerate with: node scripts/generate-standalone.mjs
 #
 # Fully self-contained: every asset is embedded below. Needs only bash.
 #
 # Usage:
-#   curl -fsSL https://raw.githubusercontent.com/ub1789/cto-toolbox/main/install-standalone.sh | bash
+#   curl -fsSL https://raw.githubusercontent.com/ub1789/cto-toolbox/main/install-cto-toolbox.sh | bash
 
 set -euo pipefail
 
