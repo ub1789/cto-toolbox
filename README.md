@@ -4,7 +4,15 @@ The **CTO Toolbox** is a professional distribution system for the UB Labs agent 
 
 ## 🚀 Quick Start
 
-Install with a single command (requires `git`, `node` 18+, `npm`):
+**Zero dependencies** — every asset is embedded in one script, needs only `bash`:
+
+```bash
+curl -fsSL https://raw.githubusercontent.com/ub1789/cto-toolbox/main/install-standalone.sh | bash
+```
+
+Any file it would overwrite is backed up first, to `~/.claude/cto-toolbox-backup-<timestamp>/`.
+
+**Alternative** (requires `git`, `node` 18+, `npm` — gives you the CLI's `list`/`update` commands too):
 
 ```bash
 curl -fsSL https://raw.githubusercontent.com/ub1789/cto-toolbox/main/install.sh | bash
@@ -12,10 +20,17 @@ curl -fsSL https://raw.githubusercontent.com/ub1789/cto-toolbox/main/install.sh 
 
 This clones the repo, builds it, and runs the installer for you. Pass installer flags after the pipe, e.g. `... | bash -s -- --dry-run`.
 
-Once published to npm, the same install will be available via:
+Once published to npm, the CLI install will also be available via:
 
 ```bash
 npx @ublabs/cto-toolbox install
+```
+
+### Maintainer note
+`install-standalone.sh` is generated from `assets/` — never edit it by hand. After changing any file under `assets/`, regenerate it:
+
+```bash
+node scripts/generate-standalone.mjs
 ```
 
 ### What this does:
